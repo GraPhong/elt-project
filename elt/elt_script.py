@@ -1,8 +1,9 @@
 import subprocess
 import time
 
+
 def wait_for_postgres(host, max_retries=5, delay_seconds=5):
-    etries = 0
+    retries = 0
     while retries < max_retries:
         try:
             result = subprocess.run(
@@ -31,17 +32,17 @@ source_config = {
     'host': 'source_postgres'
 }
 
-destionation_config = {
+destination_config = {
     'dbname': 'destination_db',
     'user': 'postgres',
     'password': 'secret',
-    'host': 'destination_db'
+    'host': 'destination_postgres'
 }
 
 dump_command = [
     'pg_dump',
     '-h', source_config['host'],
-    '-u', source_config['user'],
+    '-U', source_config['user'],
     '-d', source_config['dbname'],
     '-f', 'data_dump.sql',
     '-w'
@@ -52,9 +53,9 @@ subprocess_env = dict(PGPASSWORD=source_config['password'])
 subprocess.run(dump_command, env=subprocess_env, check=True)
 
 load_command = [
-    'pslq',
+    'psql',
     '-h', destination_config['host'],
-    '-u', destination_config['user'],
+    '-U', destination_config['user'],
     '-d', destination_config['dbname'],
     '-a','-f', 'data_dump.sql',
 ]
